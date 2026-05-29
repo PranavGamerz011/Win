@@ -2,21 +2,28 @@
 
 clear
 echo "======================================"
-echo "   Windows 10 Tiny VPS Installer"
+echo "   Windows 10 Lite VPS Installer"
 echo "======================================"
 
 sleep 2
 
-# Check KVM
+# Root check
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run as root"
+  exit 1
+fi
+
+# KVM check
 if [ ! -e /dev/kvm ]; then
     echo ""
-    echo "KVM not enabled on this VPS!"
-    echo "Windows VM cannot run."
+    echo "KVM virtualization is NOT enabled!"
+    echo "Windows cannot run on this VPS."
     exit 1
 fi
 
 echo ""
 echo "Installing Docker..."
+
 apt update -y
 apt install -y curl wget docker.io
 
@@ -24,20 +31,24 @@ systemctl enable docker
 systemctl start docker
 
 echo ""
-echo "Downloading Tiny10 ISO..."
+echo "Preparing Windows files..."
 
 mkdir -p /opt/win10
 cd /opt/win10
 
+echo ""
+echo "Downloading Windows 10 Lite ISO..."
+
 wget -O tiny10.iso \
-https://archive.org/download/tiny-10-23h2/tiny10.iso
+https://archive.org/download/tiny-10-ntdev/tiny10.iso
 
 echo ""
-echo "Removing old container..."
+echo "Removing old Windows container..."
+
 docker rm -f win10 2>/dev/null
 
 echo ""
-echo "Starting Windows 10 Tiny..."
+echo "Starting Windows 10 Lite..."
 
 docker run -d \
 --name win10 \
@@ -57,10 +68,10 @@ dockurr/windows
 clear
 
 echo "======================================"
-echo " Windows 10 Tiny Started Successfully"
+echo " Windows 10 Lite is Starting"
 echo "======================================"
 echo ""
-echo "Open in browser:"
+echo "Open Browser:"
 echo "http://YOUR_VPS_IP:8006"
 echo ""
 echo "RDP:"
@@ -68,4 +79,6 @@ echo "YOUR_VPS_IP:3389"
 echo ""
 echo "Username: admin"
 echo "Password: admin123"
+echo ""
+echo "Windows 10 Lite ISO downloaded automatically."
 echo ""
